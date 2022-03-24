@@ -47,6 +47,13 @@
         >
           Start Staking
         </button>
+        <!-- <button
+          v-if="farmerState === 'unstaked'"
+          class="enabled-button nes-btn huVjiU is-success uxbuttonleft"
+          @click="beginStaking"
+        >
+          Widthdraw NFTs
+        </button> -->
         <button
           v-if="farmerState === 'staked'"
           class="enabled-button nes-btn huVjiU is-error uxbuttonleft"
@@ -66,14 +73,19 @@
           class="enabled-button nes-btn huVjiU uxbuttonright"
           @click="claim"
         >
-        Claim {{ availableA / 1000000000 }} $LUX 
+        Claim {{ availableA  }} $LUX 
         </button>        
         <button
           v-if="availableA == 0"
           class="disabled-button nes-btn huVjiU uxbuttonright"
         >
-          Withdraw {{ availableA / 1000000000 }} $LUX
+          Withdraw {{ availableA  }} $LUX
         </button>
+        <p v-if="accruedReward" > accruedReward: {{accruedReward - paidOutReward}}</p>
+        
+        <p v-if="paidOutReward" > paidOutReward: {{paidOutReward}}</p>
+        <p v-if="fixedRate" > Reward $LUX rate: {{fixedRate}}</p>
+        
 <!--         <button class="nes-btn huVjiU mr-5" @click="handleRefreshFarmer">
           Force Refresh Vault
         </button> -->
@@ -168,7 +180,9 @@ export default defineComponent({
     const farmAcc = ref<any>();
     const ModalMessage  = ref<string>();    
     const ModalHeader  = ref<string>();  
-    let accruedReward, paidOutReward;
+    const accruedReward  = ref<string>();
+    const paidOutReward = ref<string>();    
+    const fixedRate = ref<string>();
 
     const farmerIdentity = ref<string>();
     const farmerAcc = ref<any>();
@@ -186,14 +200,16 @@ export default defineComponent({
     });
 
     const updateAvailableRewards = async () => {
+      accruedReward.value = farmerAcc.value.rewardA.accruedReward.toString();
+      paidOutReward.value = farmerAcc.value.rewardA.paidOutReward.toString();
+      fixedRate.value = farmerAcc.value.rewardA.fixedRate.promisedSchedule.baseRate.toString();
+
       availableA.value = farmerAcc.value.rewardA.accruedReward
         .sub(farmerAcc.value.rewardA.paidOutReward)
         .toString();
-        //paidOutReward = farmerAcc.value.rewardA.paidOutReward;
-        //accruedReward = farmerAcc.value.rewardA.accruedReward;
       availableB.value = farmerAcc.value.rewardB.accruedReward
         .sub(farmerAcc.value.rewardB.paidOutReward)
-        .toString();
+        .toString();   
     };
 
     const fetchFarn = async () => {   
@@ -235,6 +251,9 @@ export default defineComponent({
         try {          
           await fetchFarn();
           await fetchFarmer();
+           setInterval(function () {
+              handleRefreshFarmer()
+          }, 60000);
         } catch (e) {
           console.log(`farm with PK ${farm.value} not found :(`);
         }
@@ -271,6 +290,11 @@ export default defineComponent({
           {
            message = "Minimum staking time not reached. ";
           }
+          if(message.includes("0x1785"))
+          {
+           message = "Must have at least 1 NFT staked in the Vault. ";
+          }
+           
            showModal();
            setModalContent("There was a problem", message , "modal-bad", true, false);
         }
@@ -393,7 +417,10 @@ export default defineComponent({
       modalShowClosebutton,
       modalShowWheel,
       ModalMessage,
-      ModalHeader      
+      ModalHeader,
+      accruedReward,
+      paidOutReward,
+      fixedRate
     };
   },
 });

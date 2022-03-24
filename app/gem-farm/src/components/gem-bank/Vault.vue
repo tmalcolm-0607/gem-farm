@@ -51,9 +51,14 @@
         v-if="vaultLocked"
         class="locked flex-col justify-center items-center align-center"
       >
+        debugger;
         <p class="mt-10">STAKED</p>
         <p class="mt-10">NFTs Locked until </p>
-        <p class="mt-10">{{ parseDate(farmerAcc.minStakingEndsTs) }}</p>
+        <p class="mt-10">End Date: {{ parseDate(farmerAcc.minStakingEndsTs) }}</p>    
+        
+        <vue-countdown :time="Math.floor(farmerAcc.minStakingEndsTs - Date.now()/1000) *1000" v-slot="{ days, hours, minutes, seconds }">
+          Time Remaining：{{ days }} d, {{ hours || 0 }} h, {{ minutes || 0}} m, {{ seconds || 0}} s.
+        </vue-countdown>
       </div>
     </NFTGrid>
   </div>
@@ -75,10 +80,11 @@ import { PublicKey } from '@solana/web3.js';
 import { getListDiffBasedOnMints, removeManyFromList } from '@/common/util';
 import { BN } from '@project-serum/anchor';
 import { parseDate } from '@/common/util';
+import VueCountdown from '@chenfengyuan/vue-countdown';
 
 export default defineComponent({
 
-  components: { ArrowButton, NFTGrid },
+  components: { ArrowButton, NFTGrid, VueCountdown},
   props: {
     vault: String,    
     farmerAcc: { type: Object}
@@ -249,7 +255,7 @@ export default defineComponent({
           desiredWalletNFTs.value,
           currentWalletNFTs.value
         );
-        console.log('to wallet nfts are', toWalletNFTs.value);
+        console.log('to wallet nfts are', toWalletNFTs.value); 
       },
       { deep: true }
     );

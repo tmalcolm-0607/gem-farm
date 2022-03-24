@@ -18,7 +18,6 @@ async function getTokensByOwner(owner: PublicKey, conn: Connection) {
   const tokens = await conn.getParsedTokenAccountsByOwner(owner, {
     programId: TOKEN_PROGRAM_ID,
   });
-
   // initial filter - only tokens with 0 decimals & of which 1 is present in the wallet
   return tokens.value
     .filter((t) => {
@@ -57,7 +56,26 @@ export async function getNFTMetadataForMany(
 ): Promise<INFT[]> {
   const promises: Promise<INFT | undefined>[] = [];
   tokens.forEach((t) => promises.push(getNFTMetadata(t.mint, conn, t.pubkey)));
-  const nfts = (await Promise.all(promises)).filter((n) => !!n);
+
+  let nfts_temp : { [key: string]: any } = {};
+  nfts_temp = (await Promise.all(promises)).filter((n) => !!n);
+ 
+  let tok=[];
+  for( let nft in nfts_temp)
+  {
+    //debugger;
+    if(nfts_temp[nft].onchainMetadata?.data?.creators?.length > 0)
+    {
+      let address =  nfts_temp[nft].onchainMetadata.data.creators[0]?.address || " ";
+      //console.log("found creator NFT :" + address)
+      if(address == '9rbRFrWt81a17ArmzDcUhZmMf6VFiW7Dmy8FETmkj4s4' || address == 'xFKGtNuAUxMvkzxR1jyLcNMZxNGmqeafiEk3tEcNRpt'|| address == 'ExQoMC78E7U2UY3jYUN8wWKg1VdvA27WMsbJvgwtw16M' || address == '5gx13mAde8kjx2aevhceBJtiPDNo78WppFzd9RdVN5ch' )
+        tok.push(nfts_temp[nft]);
+    }
+  }
+  const nfts = tok
+  
+  //.filter((t) => (t[0].onchainMetadatadata.creators[0] == 'ExQoMC78E7U2UY3jYUN8wWKg1VdvA27WMsbJvgwtw16M' || t.onchainMetadatadata.creators[0] == '9rbRFrWt81a17ArmzDcUhZmMf6VFiW7Dmy8FETmkj4s4' || t.onchainMetadatadata.creators[0] == 'xFKGtNuAUxMvkzxR1jyLcNMZxNGmqeafiEk3tEcNRpt'))
+    
   console.log(`found ${nfts.length} metadatas`);
 
   return nfts as INFT[];

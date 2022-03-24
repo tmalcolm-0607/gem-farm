@@ -44,6 +44,15 @@ img {
   max-height: 100%;
   height: auto;
   width: auto;
+  /* border-radius:5px; */
+}
+
+img:hover {
+  max-width: 100%;
+  max-height: 100%;
+  height: auto;
+  width: auto;
+  border-radius:5px;
 }
 
 .card {
@@ -53,10 +62,12 @@ img {
 
 .card:hover {
   @apply border-4 border-solid border-gray-200;
+  border-radius:10px;
 }
 
 .card-selected {
   @apply border-4 border-solid;
-  border-color: black !important;
+  border-color: #47d34b  !important;
+  border-radius:10px;
 }
 </style>

@@ -1,16 +1,16 @@
 <template>
   <!--control buttons-->
   <div class="mb-10 flex justify-center">
-    <button
+    <!-- <button
       v-if="
         (toWalletNFTs && toWalletNFTs.length) ||
         (toVaultNFTs && toVaultNFTs.length)
       "
-      class="nes-btn is-primary mr-5"
+      class="enabled-button nes-btn huVjiU is-success uxbuttonleft"
       @click="moveNFTsOnChain"
     >
-      Move Gems!
-    </button>
+      Move NFTs
+    </button> -->
     <slot />
   </div>
 
@@ -19,7 +19,7 @@
     <!--left-->
     <NFTGrid
       title="Your wallet"
-      class="flex-1"
+      class="flex-1 huVjiU"
       :nfts="desiredWalletNFTs"
       @selected="handleWalletSelected"
     />
@@ -28,7 +28,7 @@
     <div class="m-2 flex flex-col">
       <ArrowButton
         :disabled="vaultLocked"
-        class="my-2"
+        class="my-2 "
         @click="moveNFTsFE(false)"
       />
       <ArrowButton
@@ -42,8 +42,8 @@
     <!--right-->
     <NFTGrid
       v-if="bank && vault"
-      title="Your vault"
-      class="flex-1"
+      title="Staking Wallet"
+      class="flex-1 huVjiU"
       :nfts="desiredVaultNFTs"
       @selected="handleVaultSelected"
     >
@@ -51,7 +51,9 @@
         v-if="vaultLocked"
         class="locked flex-col justify-center items-center align-center"
       >
-        <p class="mt-10">This vault is locked!</p>
+        <p class="mt-10">STAKED</p>
+        <p class="mt-10">NFTs Locked until </p>
+        <p class="mt-10">{{ parseDate(farmerAcc.minStakingEndsTs) }}</p>
       </div>
     </NFTGrid>
   </div>
@@ -72,13 +74,17 @@ import { initGemBank } from '@/common/gem-bank';
 import { PublicKey } from '@solana/web3.js';
 import { getListDiffBasedOnMints, removeManyFromList } from '@/common/util';
 import { BN } from '@project-serum/anchor';
+import { parseDate } from '@/common/util';
 
 export default defineComponent({
+
   components: { ArrowButton, NFTGrid },
   props: {
-    vault: String,
+    vault: String,    
+    farmerAcc: { type: Object}
   },
   emits: ['selected-wallet-nft'],
+  
   setup(props, ctx) {
     const { wallet, getWallet } = useWallet();
     const { cluster, getConnection } = useCluster();
@@ -105,7 +111,7 @@ export default defineComponent({
       currentWalletNFTs.value = [];
       selectedWalletNFTs.value = [];
       desiredWalletNFTs.value = [];
-
+      
       if (getWallet()) {
         currentWalletNFTs.value = await getNFTsByOwner(
           getWallet()!.publicKey!,
@@ -141,18 +147,20 @@ export default defineComponent({
     };
 
     const updateVaultState = async () => {
-      vaultAcc.value = await gb.fetchVaultAcc(vault.value);
+      vaultAcc.value = await gb.fetchVaultAcc(vault.value)
+      console.log("vault locked"+ vaultAcc.value.locked);
       bank.value = vaultAcc.value.bank;
       vaultLocked.value = vaultAcc.value.locked;
     };
 
+    
     watch([wallet, cluster], async () => {
       gb = await initGemBank(getConnection(), getWallet()!);
 
       //populate wallet + vault nfts
       await Promise.all([populateWalletNFTs(), populateVaultNFTs()]);
     });
-
+    // program to display a text using setInterval method
     onMounted(async () => {
       gb = await initGemBank(getConnection(), getWallet()!);
 
@@ -293,6 +301,7 @@ export default defineComponent({
       handleVaultSelected,
       moveNFTsFE,
       moveNFTsOnChain,
+      parseDate,
       bank,
       // eslint-disable-next-line vue/no-dupe-keys
       vault,
@@ -303,14 +312,5 @@ export default defineComponent({
 </script>
 
 <style scoped>
-.locked {
-  @apply text-center bg-black text-white;
-  width: 100%;
-  height: 100%;
-  position: absolute;
-  top: 0;
-  left: 0;
-  opacity: 0.7;
-  z-index: 10;
-}
+
 </style>

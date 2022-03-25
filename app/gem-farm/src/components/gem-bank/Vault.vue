@@ -1,6 +1,6 @@
 <template>
   <!--control buttons-->
-  <div class="mb-10 flex justify-center">
+  <div class="mb-10 flex flex-wrap justify-center">
     <!-- <button
       v-if="
         (toWalletNFTs && toWalletNFTs.length) ||
@@ -52,8 +52,8 @@
         class="locked flex-col justify-center items-center align-center"
       >
         <p class="mt-10">STAKED</p>
-        <p class="mt-10">NFTs Locked until </p>
-        <p class="mt-10">End Date: {{ parseDate(farmerAcc.minStakingEndsTs) }}</p>    
+        <p class="mt-10">NFTs Locked for</p>
+        <!-- <p class="mt-10">End Date: {{ parseDate(farmerAcc.minStakingEndsTs) }}</p>     -->
         
         <vue-countdown :time="Math.floor(farmerAcc.minStakingEndsTs - Date.now()/1000) *1000" v-slot="{ days, hours, minutes, seconds }">
          {{(seconds > 0) ? "Time Remaining：" : ""}}{{ (days > 0) ? days + " d ," : ""}} {{ (hours > 0) ? hours + " h ," : ""}} {{ (minutes > 0) ? minutes + " m ," : ""}} {{ (seconds > 0) ? seconds + " s" : ""}}

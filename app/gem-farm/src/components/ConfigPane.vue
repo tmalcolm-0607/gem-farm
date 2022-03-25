@@ -23,7 +23,7 @@ export default defineComponent({
   setup() {
     // cluster
     const { cluster, setCluster, getClusterURL } = useCluster();
-    setCluster(Cluster.Devnet);
+    setCluster(Cluster.Mainnet);
     // wallet
     const { getWalletName, setWallet } = useWallet();
     const chosenWallet = computed({

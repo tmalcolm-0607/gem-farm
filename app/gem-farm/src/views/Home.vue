@@ -57,7 +57,7 @@
           class="enabled-button nes-btn huVjiU is-success uxbuttonleft"
           @click="beginStaking"
         >
-          Widthdraw NFTs
+          Withdraw NFTs
         </button>
         <button
           v-if="farmerState === 'staked'"
@@ -80,19 +80,19 @@
           class="enabled-button nes-btn huVjiU uxbuttonright"
           @click="claim"
         >
-        Claim {{ availableA  }} $LUX 
+        Claim {{ availableA / 1000000000 }} $LUX 
         </button>        
         <button
           v-if="availableA == 0"
           class="disabled-button nes-btn huVjiU uxbuttonright"
         >
-          Withdraw {{ availableA  }} $LUX
+          Withdraw {{ availableA / 1000000000  }} $LUX
         </button>
         </div>
         <div class="staking-info flex justify-center huVjiU">          
-          <div v-if="accruedReward" class="accrued-reward uxbuttonleft left-buttons" > Pending Rewards: {{accruedReward - paidOutReward}} $LUX</div>
+          <div v-if="accruedReward" class="accrued-reward uxbuttonleft left-buttons" > Pending Rewards: {{(accruedReward - paidOutReward) / 1000000000}} $LUX</div>
           <!-- <div v-if="paidOutReward" class="total-earned-reward" > paidOutReward: {{paidOutReward}}</div> -->
-          <div v-if="fixedRate" class="currently-earning uxbuttonright right-buttons" > Currently generating: {{fixedRate}} $LUX per Week</div>
+          <div v-if="fixedRate" class="currently-earning uxbuttonright right-buttons" > Currently generating: {{fixedRate / 1000000000}} $LUX per Week</div>
         </div>
         
 <!--         <button class="nes-btn huVjiU mr-5" @click="handleRefreshFarmer">
@@ -249,7 +249,7 @@ export default defineComponent({
       if (getWallet() && getConnection()) {
         gf = await initGemFarm(getConnection(), getWallet()!);
         farmerIdentity.value = getWallet()!.publicKey?.toBase58();
-        farm.value = BankAddr.FARM;
+        farm.value = BankAddr.LUX;
 
         //reset stuff
         farmAcc.value = undefined;

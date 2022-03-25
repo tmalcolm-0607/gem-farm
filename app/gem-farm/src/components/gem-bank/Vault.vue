@@ -1,6 +1,6 @@
 <template>
   <!--control buttons-->
-  <div class="mb-10 flex justify-center flex-wrap">
+  <div class="mb-10 flex justify-center">
     <!-- <button
       v-if="
         (toWalletNFTs && toWalletNFTs.length) ||
@@ -52,11 +52,11 @@
         class="locked flex-col justify-center items-center align-center"
       >
         <p class="mt-10">STAKED</p>
-        <!-- <p class="mt-10">NFTs Locked until </p>
-        <p class="mt-10">End Date: {{ parseDate(farmerAcc.minStakingEndsTs) }}</p>     -->
+        <p class="mt-10">NFTs Locked until </p>
+        <p class="mt-10">End Date: {{ parseDate(farmerAcc.minStakingEndsTs) }}</p>    
         
         <vue-countdown :time="Math.floor(farmerAcc.minStakingEndsTs - Date.now()/1000) *1000" v-slot="{ days, hours, minutes, seconds }">
-          Time Remaining：{{ days }} d, {{ hours || 0 }} h, {{ minutes || 0}} m, {{ seconds || 0}} s.
+         {{(seconds > 0) ? "Time Remaining：" : ""}}{{ (days > 0) ? days + " d ," : ""}} {{ (hours > 0) ? hours + " h ," : ""}} {{ (minutes > 0) ? minutes + " m ," : ""}} {{ (seconds > 0) ? seconds + " s" : ""}}
         </vue-countdown>
       </div>
     </NFTGrid>
@@ -88,7 +88,7 @@ export default defineComponent({
     vault: String,    
     farmerAcc: { type: Object}
   },
-  emits: ['selected-wallet-nft'],
+  emits: ['selected-wallet-nft','selected-vault-nft'],
   
   setup(props, ctx) {
     const { wallet, getWallet } = useWallet();
@@ -196,23 +196,28 @@ export default defineComponent({
         const index = selectedVaultNFTs.value.indexOf(e.nft);
         selectedVaultNFTs.value.splice(index, 1);
       }
+      ctx.emit('selected-vault-nft', selectedVaultNFTs.value);
     };
 
     const moveNFTsFE = (moveLeft: boolean) => {
-      if (moveLeft) {
+      if (moveLeft) {        
         //push selected vault nfts into desired wallet
         desiredWalletNFTs.value.push(...selectedVaultNFTs.value);
         //remove selected vault nfts from desired vault
         removeManyFromList(selectedVaultNFTs.value, desiredVaultNFTs.value);
         //empty selection list
-        selectedVaultNFTs.value = [];
+        selectedVaultNFTs.value = [];  
+        
+        ctx.emit('selected-wallet-nft', selectedVaultNFTs.value);
+              
       } else {
         //push selected wallet nfts into desired vault
         desiredVaultNFTs.value.push(...selectedWalletNFTs.value);
         //remove selected wallet nfts from desired wallet
         removeManyFromList(selectedWalletNFTs.value, desiredWalletNFTs.value);
         //empty selected walelt
-        selectedWalletNFTs.value = [];
+        selectedWalletNFTs.value = [];        
+        ctx.emit('selected-vault-nft', selectedVaultNFTs.value);
       }
     };
 
@@ -300,7 +305,9 @@ export default defineComponent({
       wallet,
       desiredWalletNFTs,
       desiredVaultNFTs,
-      toVaultNFTs,
+      currentWalletNFTs,
+      currentVaultNFTs,
+      toVaultNFTs, 
       toWalletNFTs,
       handleWalletSelected,
       handleVaultSelected,

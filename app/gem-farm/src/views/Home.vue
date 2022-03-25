@@ -34,6 +34,7 @@
         :vault="farmerAcc.vault.toBase58()"
         :farmerAcc="farmerAcc"
         @selected-wallet-nft="handleNewSelectedNFT"
+        @selected-vault-nft="handleNewSelectedVaultNFT"
         ref= 'VaultRef'
       >
         <div class="left-buttons">
@@ -45,19 +46,19 @@
           Add NFTs (resets lock timer)
         </button>
         <button
-          v-if="farmerState === 'unstaked'"
+          v-if="farmerState === 'unstaked' && !widthdrawNFTs"
           class="enabled-button nes-btn huVjiU is-success uxbuttonleft"
           @click="beginStaking"
         >
           Start Staking
         </button>
-        <!-- <button
-          v-if="farmerState === 'unstaked'"
+        <button
+          v-if="farmerState === 'unstaked'  && widthdrawNFTs" 
           class="enabled-button nes-btn huVjiU is-success uxbuttonleft"
           @click="beginStaking"
         >
           Widthdraw NFTs
-        </button> -->
+        </button>
         <button
           v-if="farmerState === 'staked'"
           class="enabled-button nes-btn huVjiU is-error uxbuttonleft"
@@ -133,6 +134,7 @@ export default defineComponent({
   setup(props, ctx) {
     const { wallet, getWallet } = useWallet();
     const { cluster, getConnection } = useCluster();
+    const widthdrawNFTs = ref(false);
     const modalActive = ref(false);
     const modalGood = ref(false);
     const modalBad = ref(false);
@@ -255,13 +257,14 @@ export default defineComponent({
         farmerState.value = undefined;
         availableA.value = undefined;
         availableB.value = undefined;
+        widthdrawNFTs.value = false;
 
         try {          
           await fetchFarn();
           await fetchFarmer();
            setInterval(function () {
               handleRefreshFarmer()
-          }, 60000);
+          }, 600000);
         } catch (e) {
           console.log(`farm with PK ${farm.value} not found :(`);
         }
@@ -279,13 +282,27 @@ export default defineComponent({
       try
       {
         showModal();
-        setModalContent("Submiting Transaction", "Transaction in Progress", "modal-neutral", false, true);        
-        
-          await VaultRef.value.moveNFTsOnChain();
-          await gf.stakeWallet(new PublicKey(farm.value!));
-          await fetchFarmer();
-
-        hideModal();
+        setModalContent("Submiting Transaction", "Transaction in Progress", "modal-neutral", false, true);     
+        //debugger;           
+          if((VaultRef.value.desiredVaultNFTs.length >= VaultRef.value.currentVaultNFTs.length && VaultRef.value.desiredVaultNFTs.length > 0))
+          {
+            await VaultRef.value.moveNFTsOnChain();
+            await gf.stakeWallet(new PublicKey(farm.value!));
+            hideModal();
+          }
+          else
+          {
+            if((VaultRef.value.desiredVaultNFTs.length - VaultRef.value.currentVaultNFTs.length) >= 0 && VaultRef.value.desiredVaultNFTs.length < 1)
+            {
+              setModalContent("There was a problem", "Must have at least 1 NFT staked in the Vault." , "modal-bad", true, false);
+            }
+            else
+            {
+              await VaultRef.value.moveNFTsOnChain();                
+              hideModal();
+            }             
+          }
+          await fetchFarmer();        
       }
       catch(ex: unknown)
       {      
@@ -301,6 +318,10 @@ export default defineComponent({
           if(message.includes("0x1785"))
           {
            message = "Must have at least 1 NFT staked in the Vault. ";
+          }
+          if(message.includes("0x1784"))
+          {
+           message = "Vault is Locked. Please try again after the minimum staking peroid has completed ";
           }
            
            showModal();
@@ -360,6 +381,17 @@ export default defineComponent({
     const selectedNFTs = ref<INFT[]>([]);
 
     const handleNewSelectedNFT = (newSelectedNFTs: INFT[]) => {
+      //debugger
+      widthdrawNFTs.value = (VaultRef.value.currentVaultNFTs.length - VaultRef.value.desiredVaultNFTs.length> 0 )
+      
+      console.log(`selected ${newSelectedNFTs.length} NFTs`);
+      selectedNFTs.value = newSelectedNFTs; 
+    };
+
+    const handleNewSelectedVaultNFT = (newSelectedNFTs: INFT[]) => {
+      //debugger;
+      widthdrawNFTs.value = (VaultRef.value.currentVaultNFTs.length - VaultRef.value.desiredVaultNFTs.length> 0 )
+      
       console.log(`selected ${newSelectedNFTs.length} NFTs`);
       selectedNFTs.value = newSelectedNFTs;
     };
@@ -412,6 +444,7 @@ export default defineComponent({
       handleRefreshFarmer,
       selectedNFTs,
       handleNewSelectedNFT,
+      handleNewSelectedVaultNFT,
       addGems,
       VaultRef,
       modalActive, 
@@ -428,7 +461,8 @@ export default defineComponent({
       ModalHeader,
       accruedReward,
       paidOutReward,
-      fixedRate
+      fixedRate,
+      widthdrawNFTs
     };
   },
 });

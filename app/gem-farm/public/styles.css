@@ -46,12 +46,18 @@ select
     background-color:#5dff9c;
     color:#000;
 }
+.left-buttons{
+    width: 50%;
+    text-align: right;
+}
+.right-buttons{
+    width: 50%;
+    text-align: left;
+}
 .uxbuttonleft{
-    width:15%;
     margin-right: 38px;
 }
 .uxbuttonright{
-    width:15%;
     margin-left: 38px;
 }
 .hpbutton{
@@ -65,9 +71,20 @@ select
     font-size: larger;
     text-transform: uppercase;
 }
+.modal-content {
+    margin: 30px;
+}
 .modal-spinner {    
     text-align: center;
     justify-content: center;
+    display: flex;
+    margin: 10px;
+}
+.flex-wrap{
+    flex-wrap: wrap;
+}
+.staking-info{
+    width: 100%;
 }
 .locked {
     background-color: rgb(93, 255, 156, 0.7);
@@ -80,4 +97,41 @@ select
     left: 0;
     opacity: 0.8;
     z-index: 10;
+  }
+  .spinner {
+    animation: rotator 1.4s linear infinite;
+  }
+  
+  @keyframes rotator {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(270deg); }
+  }
+  
+  .path {
+    stroke-dasharray: 187;
+    stroke-dashoffset: 0;
+    transform-origin: center;
+    animation:
+      dash 1.4s ease-in-out infinite, 
+      colors 5.6s ease-in-out infinite;
+  }
+  
+  @keyframes colors {
+      0% { stroke: rgb(93, 255, 156,); }
+      25% { stroke: rgb(84, 201, 129); }
+      50% { stroke: rgb(92, 228, 144); }
+      75% { stroke: rgb(65, 209, 121); }
+    100% { stroke: rgb(93, 255, 156); }
+  }
+  
+  @keyframes dash {
+   0% { stroke-dashoffset: 187; }
+   50% {
+     stroke-dashoffset: 46.75;
+     transform:rotate(135deg);
+   }
+   100% {
+     stroke-dashoffset: 187;
+     transform:rotate(450deg);
+   }
   }

@@ -1,6 +1,6 @@
 <template>
   <div
-    class="m-1 card flex justify-center"
+    class="m-1 card flex justify-center card-parent-div"
     :class="{ 'card-selected': selected }"
     @click="toggleSelect"
   >
@@ -8,6 +8,7 @@
       :src="nft.externalMetadata.image"
       :alt="nft.onchainMetadata.data.name"
     />
+    <div class="hover-text">2K $LUX Per Week</div>
   </div>
 </template>
 
@@ -44,7 +45,7 @@ img {
   max-height: 100%;
   height: auto;
   width: auto;
-  /* border-radius:5px; */
+  border-radius:5px;
 }
 
 img:hover {
@@ -69,5 +70,26 @@ img:hover {
   @apply border-4 border-solid;
   border-color: #47d34b  !important;
   border-radius:10px;
+}
+.card-parent-div{
+ position: relative;
+ float: left;
+}
+.hover-text{
+ position: absolute;
+ bottom: 0;
+ right: 0;
+ width:100%;
+ background: black;
+ color: white;
+ margin: auto;
+ opacity: 0;
+ visibility: visible;
+ -webkit-transition: visibility 0s, opacity 0.5s linear; 
+ /* transition: visibility 0s, opacity 0.5s linear; */
+}
+.hover-text:hover{
+ visibility: visible;
+ opacity: 0.7; 
 }
 </style>

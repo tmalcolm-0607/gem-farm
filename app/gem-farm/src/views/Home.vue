@@ -18,7 +18,10 @@
            <h1>{{ModalHeader}}</h1>
           </div>
           <div class="modal-spinner">
-          <img v-show="modalShowWheel" src='../assets/spining_wheel_1.gif' width="50" height="50" alt='spining wheel'/>
+            <svg v-show="modalShowWheel" class="spinner" width="65px" height="65px" viewBox="0 0 66 66" xmlns="http://www.w3.org/2000/svg">
+              <circle v-show="modalShowWheel" class="path" fill="none" stroke-width="6" stroke-linecap="round" cx="33" cy="33" r="30"></circle>
+            </svg>
+            <!-- <img v-show="modalShowWheel" src='../assets/spining_wheel_1.gif' width="50" height="50" alt='spining wheel'/> -->
           </div>
           <div class="modal-text">
             <p>{{ModalMessage}}</p>
@@ -33,6 +36,7 @@
         @selected-wallet-nft="handleNewSelectedNFT"
         ref= 'VaultRef'
       >
+        <div class="left-buttons">
         <button
           v-if="farmerState === 'staked' && selectedNFTs.length > 0"
           class="nes-btn huVjiU is-primary uxbuttonleft"
@@ -68,6 +72,8 @@
         >
           Stop Staking
         </button>
+        </div>
+        <div class="right-buttons">
         <button
           v-if="availableA > 0"
           class="enabled-button nes-btn huVjiU uxbuttonright"
@@ -81,10 +87,12 @@
         >
           Withdraw {{ availableA  }} $LUX
         </button>
-        <p v-if="accruedReward" > accruedReward: {{accruedReward - paidOutReward}}</p>
-        
-        <p v-if="paidOutReward" > paidOutReward: {{paidOutReward}}</p>
-        <p v-if="fixedRate" > Reward $LUX rate: {{fixedRate}}</p>
+        </div>
+        <div class="staking-info flex justify-center huVjiU">          
+          <div v-if="accruedReward" class="accrued-reward uxbuttonleft left-buttons" > Pending Rewards: {{accruedReward - paidOutReward}} $LUX</div>
+          <!-- <div v-if="paidOutReward" class="total-earned-reward" > paidOutReward: {{paidOutReward}}</div> -->
+          <div v-if="fixedRate" class="currently-earning uxbuttonright right-buttons" > Currently generating: {{fixedRate}} $LUX per Week</div>
+        </div>
         
 <!--         <button class="nes-btn huVjiU mr-5" @click="handleRefreshFarmer">
           Force Refresh Vault

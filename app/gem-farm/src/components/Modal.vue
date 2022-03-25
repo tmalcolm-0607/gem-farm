@@ -48,17 +48,20 @@ export default {
   transform: scale(0.8);
 }
 .modal-good {
-  background-color: rgba(93, 255, 156, 0.7);
+  background-image: linear-gradient(to right, rgba(93, 255, 156, 0),rgba(93, 255, 156, 0.7),rgba(93, 255, 156, 0.7),rgba(93, 255, 156, 0.7),rgba(93, 255, 156, 0));
   color: black;
   border: rgba(93, 255, 156, 1);
+  min-width: 500px;
 }
 .modal-neutral{
-  background-color: rgba(10, 123, 172, 0.7);
+   background-image: linear-gradient(to right,rgba(10, 123, 172, 0),rgba(10, 123, 172, 0.7),rgba(10, 123, 172, 0.7),rgba(10, 123, 172, 0.7),rgba(10, 123, 172, 0));
   border: rgba(10, 123, 172, 1);
+  min-width: 500px;
 }
 .modal-bad{
-  background-color: rgba(172, 10, 23, 0.7);
+  background-image: linear-gradient(to right, rgba(172, 10, 23, 0), rgba(172, 10, 23, 0.7),rgba(172, 10, 23, 0.7),rgba(172, 10, 23, 0.7), rgba(172, 10, 23, 0));
   border: rgba(172, 10, 23, 1);
+  min-width: 500px;
 }
 .modal {
   display: flex;

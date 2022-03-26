@@ -67,7 +67,8 @@ export async function getNFTMetadataForMany(
     {
       let address =  nfts_temp[nft].onchainMetadata.data.creators[0]?.address || " ";
       //console.log("found creator NFT :" + address)
-      if(address == '9rbRFrWt81a17ArmzDcUhZmMf6VFiW7Dmy8FETmkj4s4' || address == '3hehTpQPm6b3vsS9iGyDXwqCuVn4vs8RcRbg8T54sBNz'|| address == 'AGDBeUaKReqE3DdtWq6J9TRAarScBRhGJ77cD82wLNvD' || address == '5gx13mAde8kjx2aevhceBJtiPDNo78WppFzd9RdVN5ch' )
+      // address == '9rbRFrWt81a17ArmzDcUhZmMf6VFiW7Dmy8FETmkj4s4' || 
+      if(address == '7HdtUewmjpFnE8SKhZDYGCKmL75ZWUxJp6xa1HrmJww8'|| address == 'AGDBeUaKReqE3DdtWq6J9TRAarScBRhGJ77cD82wLNvD' || address == '5gx13mAde8kjx2aevhceBJtiPDNo78WppFzd9RdVN5ch' )
         tok.push(nfts_temp[nft]);
     }
   }

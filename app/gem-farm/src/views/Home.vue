@@ -412,6 +412,10 @@ export default defineComponent({
     };
 
     const addGems = async () => {
+       try
+      {
+       showModal();
+        setModalContent("Submiting Transactions.", "Please Wait. Transaction in Progress", "modal-neutral", false, true);
       await Promise.all(
         selectedNFTs.value.map((nft) => {
           const creator = new PublicKey(
@@ -426,7 +430,26 @@ export default defineComponent({
       console.log(
         `added another ${selectedNFTs.value.length} gems into staking vault`
       );
+       await VaultRef.value.moveNFTsOnChain();
+       hideModal();
+      }
+      catch(ex: unknown)
+      {      
+        //debugger;
+        let message = 'Unknown Error: Please try again. If the problem continues, please reach out to the site admin'
+        if (ex instanceof Error) {
+          message = ex.message;
+          if(message.includes("0x179a"))
+          {
+           message = "Minimum staking time not reached. ";
+          }
+           showModal();
+           setModalContent("There was a problem", message , "modal-bad", true, false);
+        }
+      }
+     
     };
+    
 
     return {
       wallet,

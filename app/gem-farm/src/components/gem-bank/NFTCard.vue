@@ -8,7 +8,7 @@
       :src="nft.externalMetadata.image"
       :alt="nft.onchainMetadata.data.name"
     />
-    <div class="hover-text">2K $LUX Per Week</div>
+    <div class="hover-text">1K $LUX Per Week</div>
   </div>
 </template>
 

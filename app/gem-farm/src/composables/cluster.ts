@@ -11,12 +11,14 @@ export enum Cluster {
 export enum BankAddr {
    DEV = '2S2G3UQQG4wABb5QgWreEPRrgPb5PSABJKFb51RTzZdY',
    LUX = '9VTFBGEhy3KAVR1WNQxPeuZrKevVyoayUUGUixaVoLQ3',
+   //LUX = '2S2G3UQQG4wABb5QgWreEPRrgPb5PSABJKFb51RTzZdY',
 }
 
 const clusterURLMapping = {
   mainnet: process.env.VUE_APP_MAINNET_URL || 'https://restless-silent-cloud.solana-mainnet.quiknode.pro/',
   //mainnet: process.env.VUE_APP_DEVNET_URL || 'https://api.devnet.solana.com',
   devnet: process.env.VUE_APP_DEVNET_URL || 'https://api.devnet.solana.com',
+  //mainnet: process.env.VUE_APP_DEVNET_URL || 'https://api.devnet.solana.com',
   testnet: process.env.VUE_APP_TESTNET_URL || 'https://api.testnet.solana.com',
   localnet: process.env.VUE_APP_LOCALNET_URL || 'http://localhost:8899',
 };

@@ -446,8 +446,7 @@ export default defineComponent({
            showModal();
            setModalContent("There was a problem", message , "modal-bad", true, false);
         }
-      }
-     
+      }     
     };
     
 

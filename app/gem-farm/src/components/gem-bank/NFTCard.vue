@@ -8,7 +8,7 @@
       :src="nft.externalMetadata.image"
       :alt="nft.onchainMetadata.data.name"
     />
-    <div class="hover-text">1K $LUX Per Week</div>
+    <div v-if="pricePerWeek > 0" class="hover-text">{{pricePerWeek}}K $LUX Per Week</div>
   </div>
 </template>
 
@@ -19,10 +19,48 @@ export default defineComponent({
     nft: { type: Object, required: true },
   },
   emits: ['selected'],
+  onMounted()
+  {
+    this.SetPricePerWeek();
+  },
   setup(props, ctx) {
     const selected = ref<boolean>(false);
+    const pricePerWeek = ref<String>();
+    pricePerWeek.value = "200";
+    const SetPricePerWeek = () =>
+    {      
+      var baseRate = 5;
+      try{
+      var lux_type = props.nft.externalMetadata.attributes[0].value.toString() || 5;
+      }catch(err)
+      {}
+      
+      switch(lux_type)
+      {
+        case 'Apartment':
+          baseRate = 5;
+          break;
+         case 'Duplex':
+          baseRate = 6;
+          break;
+         case 'Condo':
+          baseRate = 7;
+          break;
+           case 'Penthouse':
+          baseRate = 8;
+          break;
+           case 'Mansion':
+          baseRate = 10;
+          break;
 
-    const toggleSelect = () => {
+        default:
+          baseRate = 5;
+          break;
+      }
+     pricePerWeek.value = (baseRate * 200).toString();
+    }
+    SetPricePerWeek();
+    const toggleSelect = () => {           
       selected.value = !selected.value;
       console.log('selected', props.nft.mint.toBase58());
       ctx.emit('selected', {
@@ -34,6 +72,8 @@ export default defineComponent({
     return {
       selected,
       toggleSelect,
+      SetPricePerWeek,
+      pricePerWeek,
     };
   },
 });

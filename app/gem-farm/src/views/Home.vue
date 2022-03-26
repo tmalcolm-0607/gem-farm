@@ -212,8 +212,8 @@ export default defineComponent({
     const updateAvailableRewards = async () => {
       accruedReward.value = farmerAcc.value.rewardA.accruedReward.toString();
       paidOutReward.value = farmerAcc.value.rewardA.paidOutReward.toString();
-      fixedRate.value = farmerAcc.value.rewardA.fixedRate.promisedSchedule.baseRate.toString();
-
+      fixedRate.value = (farmerAcc.value.rewardA.fixedRate.promisedSchedule.baseRate * farmerAcc.value.rarityPointsStaked.words[0]).toString();
+      //debugger;
       availableA.value = farmerAcc.value.rewardA.accruedReward
         .sub(farmerAcc.value.rewardA.paidOutReward)
         .toString();
@@ -246,6 +246,8 @@ export default defineComponent({
     };
 
     const freshStart = async () => {
+       setModalContent("Welcome to Lux Metaverse Staking", "We are actively updating this interface/staking solution. But please note before staking to make sure all your NFT's are in the Target Vault before staking. The act of clicking start staking will lock this NFT for 7 days in this vault you will not be able to unstake during this time.", "modal-neutral", true, false);     
+         showModal();
       if (getWallet() && getConnection()) {
         gf = await initGemFarm(getConnection(), getWallet()!);
         farmerIdentity.value = getWallet()!.publicKey?.toBase58();
@@ -282,7 +284,7 @@ export default defineComponent({
       try
       {
         showModal();
-        setModalContent("Submiting Transaction", "Transaction in Progress", "modal-neutral", false, true);     
+        setModalContent("Submitting Transaction", "Transaction in Progress", "modal-neutral", false, true);     
         //debugger;           
           if((VaultRef.value.desiredVaultNFTs.length >= VaultRef.value.currentVaultNFTs.length && VaultRef.value.desiredVaultNFTs.length > 0))
           {
@@ -335,7 +337,7 @@ export default defineComponent({
       try
       {
         showModal();
-        setModalContent("Submiting Transactions.", "Please Wait. Transaction in Progress", "modal-neutral", false, true);
+        setModalContent("Submitting Transactions.", "Please Wait. Transaction in Progress", "modal-neutral", false, true);
 
           await gf.unstakeWallet(new PublicKey(farm.value!));
           await fetchFarmer();
@@ -415,7 +417,7 @@ export default defineComponent({
        try
       {
        showModal();
-        setModalContent("Submiting Transactions.", "Please Wait. Transaction in Progress", "modal-neutral", false, true);
+        setModalContent("Submitting Transactions.", "Please Wait. Transaction in Progress", "modal-neutral", false, true);
       await Promise.all(
         selectedNFTs.value.map((nft) => {
           const creator = new PublicKey(

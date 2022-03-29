@@ -2,7 +2,7 @@
   <div class="pt-10 px-10 flex justify-center align-middle">
       <img src="../assets/white-lux.png" style="width: 25%;"/><br/>
   </div>
-  <ConfigPane />
+  <ConfigPane :farmerAcc="farmerAcc" />
   <div v-if="!wallet" class="text-center"></div>
   <div v-else>
     <div v-if="farmerAcc">  
@@ -21,7 +21,6 @@
             <svg v-show="modalShowWheel" class="spinner" width="65px" height="65px" viewBox="0 0 66 66" xmlns="http://www.w3.org/2000/svg">
               <circle v-show="modalShowWheel" class="path" fill="none" stroke-width="6" stroke-linecap="round" cx="33" cy="33" r="30"></circle>
             </svg>
-            <!-- <img v-show="modalShowWheel" src='../assets/spining_wheel_1.gif' width="50" height="50" alt='spining wheel'/> -->
           </div>
           <div class="modal-text">
             <p>{{ModalMessage}}</p>
@@ -59,6 +58,7 @@
         >
           Withdraw NFTs
         </button>
+        
         <button
           v-if="farmerState === 'staked'"
           class="enabled-button nes-btn huVjiU is-error uxbuttonleft"
@@ -73,6 +73,9 @@
         >
           Stop Staking
         </button>
+        <div class=""  style="position: relative;fontSize:x-small">
+          <p class="mr-10">*Stop Staking to Add more NFT's</p> 
+          </div>
         </div>
         <div class="right-buttons">
         <button
@@ -89,10 +92,16 @@
           Withdraw {{ availableA / 1000000000  }} $LUX
         </button>
         </div>
-        <div class="width100 flex justify-center huVjiU">          
-          <div v-if="accruedReward" class="accrued-reward uxbuttonleft left-buttons" > Pending Rewards: {{(accruedReward - paidOutReward) / 1000000000}} $LUX</div>
+        
+        <div class="width100 flex justify-center huVjiU pt-5">          
+          <div v-if="fixedRate > 0" class="accrued-reward uxbuttonleft left-buttons" > Vault Deposited Rewards: {{(accruedReward - paidOutReward) / 1000000000}} $LUX</div>
           <!-- <div v-if="paidOutReward" class="total-earned-reward" > paidOutReward: {{paidOutReward}}</div> -->
-          <div v-if="fixedRate" class="currently-earning uxbuttonright right-buttons" > Currently generating: {{fixedRate / 1000000000}} $LUX per Week</div>
+          <div v-if="fixedRate > 0" class="currently-earning uxbuttonright right-buttons" > Currently generating: {{fixedRate / 1000000000}} $LUX per Week</div>
+        </div>
+        <div class="width100 flex justify-center huVjiU pt-5">          
+          <div v-if="fixedRate > 0" class="accrued-reward uxbuttonleft left-buttons" > Estimated Pending Rewards: {{estFixedRate}} $LUX</div>
+          <!-- <div v-if="paidOutReward" class="total-earned-reward" > paidOutReward: {{paidOutReward}}</div> -->
+          <div v-if="fixedRate > 0" class="currently-earning uxbuttonright right-buttons" > Staking Status: {{farmerState}}</div>
         </div>
         
 <!--         <button class="nes-btn huVjiU mr-5" @click="handleRefreshFarmer">
@@ -192,7 +201,8 @@ export default defineComponent({
     const ModalHeader  = ref<string>();  
     const accruedReward  = ref<string>();
     const paidOutReward = ref<string>();    
-    const fixedRate = ref<string>();
+    const fixedRate = ref<number>();    
+    const estFixedRate = ref<number>();
 
     const farmerIdentity = ref<string>();
     const farmerAcc = ref<any>();
@@ -212,14 +222,16 @@ export default defineComponent({
     const updateAvailableRewards = async () => {
       accruedReward.value = farmerAcc.value.rewardA.accruedReward.toString();
       paidOutReward.value = farmerAcc.value.rewardA.paidOutReward.toString();
-      fixedRate.value = (farmerAcc.value.rewardA.fixedRate.promisedSchedule.baseRate * farmerAcc.value.rarityPointsStaked.words[0]).toString();
-      //debugger;
+      fixedRate.value = (farmerAcc.value.rewardA.fixedRate.promisedSchedule.baseRate * farmerAcc.value.rarityPointsStaked.words[0]);
+      estFixedRate.value = Math.floor((Date.now()/1000 - farmerAcc.value.minStakingEndsTs) * (fixedRate.value / 1000000000)/604799);
+      
       availableA.value = farmerAcc.value.rewardA.accruedReward
         .sub(farmerAcc.value.rewardA.paidOutReward)
         .toString();
       availableB.value = farmerAcc.value.rewardB.accruedReward
         .sub(farmerAcc.value.rewardB.paidOutReward)
         .toString();   
+        console.log ("called updateAvailableRewards method")
     };
 
     const fetchFarn = async () => {   
@@ -265,8 +277,8 @@ export default defineComponent({
           await fetchFarn();
           await fetchFarmer();
            setInterval(function () {
-              handleRefreshFarmer()
-          }, 600000);
+              updateAvailableRewards()
+          }, 20000);
         } catch (e) {
           console.log(`farm with PK ${farm.value} not found :(`);
         }
@@ -405,7 +417,10 @@ export default defineComponent({
     };
 
     const handleRefreshFarmer = async () => {
-      await fetchFarmer();
+      await gf.refreshFarmerWallet(
+        new PublicKey(farm!),
+        new PublicKey(farmerIdentity!)
+          );
     };
 
     // --------------------------------------- adding extra gem
@@ -515,6 +530,7 @@ export default defineComponent({
       accruedReward,
       paidOutReward,
       fixedRate,
+      estFixedRate,
       widthdrawNFTs
     };
   },

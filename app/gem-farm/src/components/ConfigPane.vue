@@ -10,7 +10,7 @@
         <option :value="WalletName.SolflareWeb">Solflare Web</option>
       </select>
     </div>
-    <div class="connected-wallet flex justify-center align-middle width100">If a wallet is connected show it here.</div>
+    <div v-if="farmerAcc" class="connected-wallet flex justify-center align-middle width100">Connected Wallet: <p class="flex ml-3"> {{farmerAcc.identity.toBase58()}}...</p></div>
     <!-- <img>there will be an image here to disconnect wallet</img> -->
   </div>
 </template>
@@ -22,6 +22,9 @@ import useCluster, { Cluster } from '@/composables/cluster';
 import useWallet from '@/composables/wallet';
 
 export default defineComponent({
+    props: {
+    farmerAcc: { type: Object}
+  },
   setup() {
     // cluster
     const { cluster, setCluster, getClusterURL } = useCluster();

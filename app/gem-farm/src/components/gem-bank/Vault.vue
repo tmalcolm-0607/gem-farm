@@ -51,15 +51,17 @@
         v-if="vaultLocked"
         class="locked flex-col justify-center items-center align-center"
       >
-        <p class="mt-10">STAKED</p>
-        <p class="mt-10">NFTs Locked for</p>
+      <div>
+        <p class="mt-10">STAKED - Vault Locked</p>
+        <p v-if="parseDate(farmerAcc.minStakingEndsTs) <  Date.now()" class="mt-10">NFTs Locked for</p>
         <!-- <p class="mt-10">End Date: {{ parseDate(farmerAcc.minStakingEndsTs) }}</p>     -->
         
         <vue-countdown :time="Math.floor(farmerAcc.minStakingEndsTs - Date.now()/1000) *1000" v-slot="{ days, hours, minutes, seconds }">
          {{(seconds > 0) ? "Time Remaining：" : ""}}{{ (days > 0) ? days + " d ," : ""}} {{ (hours > 0) ? hours + " h ," : ""}} {{ (minutes > 0) ? minutes + " m ," : ""}} {{ (seconds > 0) ? seconds + " s" : ""}}
         </vue-countdown>
       </div>
-    </NFTGrid>
+      </div>
+    </NFTGrid>          
   </div>
 </template>
 
@@ -125,7 +127,7 @@ export default defineComponent({
         desiredWalletNFTs.value = [...currentWalletNFTs.value];
       }
     };
-
+  
     const populateVaultNFTs = async () => {
       // zero out to begin with
       currentVaultNFTs.value = [];

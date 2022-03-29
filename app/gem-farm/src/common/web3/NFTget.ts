@@ -33,13 +33,16 @@ async function getTokensByOwner(owner: PublicKey, conn: Connection) {
 async function getNFTMetadata(
   mint: string,
   conn: Connection,
-  pubkey?: string
+  pubkey?: string,
+  attempt: number = -1
 ): Promise<INFT | undefined> {
   // console.log('Pulling metadata for:', mint);
   try {
     const metadataPDA = await Metadata.getPDA(mint);
     const onchainMetadata = (await Metadata.load(conn, metadataPDA)).data;
     let externalMetadata  :any;
+    //debugger;
+    //if(onchainMetadata.data.symbol.toLowerCase() == "luxr" || onchainMetadata.data.symbol.toLowerCase() == "luxe" || onchainMetadata.data.symbol.toLowerCase() == "basc")
     if(onchainMetadata.data.symbol.toLowerCase() == "luxr" || onchainMetadata.data.symbol.toLowerCase() == "luxe")
     {
       externalMetadata = (await axios.get(onchainMetadata.data.uri)).data;
@@ -52,7 +55,14 @@ async function getNFTMetadata(
       externalMetadata,
     };
   } catch (e) {
-    console.log(`failed to pull metadata for token ${mint}`);
+    if(attempt < 5)
+    {
+      attempt++;
+      console.log(e);
+      console.log(`failed to pull metadata for token ${mint} attmept ${attempt} of 5`);
+      return getNFTMetadata(mint, conn, pubkey, attempt); 
+    }
+    console.log(`failed to pull metadata for token ${mint} attmept ${attempt} of 5`);
   }
 }
 

@@ -5,10 +5,10 @@
     @click="toggleSelect"
   >
     <img
-      :src="nft.externalMetadata.image"
+      :src="nft.externalMetadata.image || '../../assets/spining_wheel_1.gif'"
       :alt="nft.onchainMetadata.data.name"
-    />
-    <div v-if="pricePerWeek > 0" class="hover-text">{{pricePerWeek}}K $LUX Per Week</div>
+     src ="../../assets/spining_wheel_1.gif"/>
+    <div v-if="pricePerWeek > 0" class="hover-text">{{pricePerWeek}} $LUX Per Week</div>
   </div>
 </template>
 

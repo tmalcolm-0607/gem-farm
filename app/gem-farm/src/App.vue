@@ -3,7 +3,6 @@
     <div class="p-10">
       <router-view />
     </div>
-
     <div class="pt-10"></div>
   </div>
 </template>

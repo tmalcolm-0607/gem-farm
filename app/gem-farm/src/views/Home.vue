@@ -38,13 +38,13 @@
         ref= 'VaultRef'
       >
         <div class="left-buttons">
-        <button
+        <!-- <button
           v-if="farmerState === 'staked' && selectedNFTs.length > 0"
           class="nes-btn huVjiU is-primary uxbuttonleft"
           @click="addGems"
         >
           Add NFTs (resets lock timer)
-        </button>
+        </button> -->
         <button
           v-if="farmerState === 'unstaked' && !widthdrawNFTs"
           class="enabled-button nes-btn huVjiU is-success uxbuttonleft"
@@ -89,7 +89,7 @@
           Withdraw {{ availableA / 1000000000  }} $LUX
         </button>
         </div>
-        <div class="staking-info flex justify-center huVjiU">          
+        <div class="width100 flex justify-center huVjiU">          
           <div v-if="accruedReward" class="accrued-reward uxbuttonleft left-buttons" > Pending Rewards: {{(accruedReward - paidOutReward) / 1000000000}} $LUX</div>
           <!-- <div v-if="paidOutReward" class="total-earned-reward" > paidOutReward: {{paidOutReward}}</div> -->
           <div v-if="fixedRate" class="currently-earning uxbuttonright right-buttons" > Currently generating: {{fixedRate / 1000000000}} $LUX per Week</div>
@@ -108,7 +108,7 @@
         Staking account not found. Click here to create a new one.
       </div>
       <div class="w-full text-center">
-        <button class="nes-btn huVjiU" @click="initFarmer">
+        <button class="nes-btn huVjiU new-staking-account" @click="initFarmer">
           New staking account
         </button>
       </div>
@@ -246,7 +246,7 @@ export default defineComponent({
     };
 
     const freshStart = async () => {
-       setModalContent("Welcome to Lux Metaverse Staking", "We are actively updating this interface/staking solution. But please note before staking to make sure all your NFT's are in the Target Vault before staking. The act of clicking start staking will lock this NFT for 7 days in this vault you will not be able to unstake during this time.", "modal-neutral", true, false);     
+       setModalContent("Welcome to Lux Metaverse Staking", "We are actively updating this interface/staking solution. But please note before staking to make sure all your NFT's are in the Target Vault before staking. The act of clicking 'Start Staking' will lock this NFT for 7 days in this vault you will not be able to unstake during this time.", "modal-neutral", true, false);     
          showModal();
       if (getWallet() && getConnection()) {
         gf = await initGemFarm(getConnection(), getWallet()!);
@@ -274,8 +274,37 @@ export default defineComponent({
     };
 
     const initFarmer = async () => {
-      await gf.initFarmerWallet(new PublicKey(farm.value!));  
-      await fetchFarmer();
+      //debugger;
+          try
+          {           
+            setModalContent("Submitting Transaction", "Creating new staking account: Transaction in Progress", "modal-neutral", false, true);    
+             showModal();
+              await gf.initFarmerWallet(new PublicKey(farm.value!));  
+              await fetchFarmer();
+          }
+          catch(ex: unknown)
+          {      
+             let message = 'Unknown Error: Please try again. If the problem continues, please reach out to the site admin'
+              if (ex instanceof Error) {
+                hideModal();
+                message = ex.message;
+                if(message.includes("0x1770"))
+                {
+                message = "Transaction Failed: Compute limit(200000) reached. ";
+                }
+                if(message.includes("0x1"))
+                {
+                message = "Please make sure you have at least .05 Sol in your account to cover rental and transaction fees";
+                }
+                if(message.includes("0x1784"))
+                {
+                message = "Vault is Locked. Please try again after the minimum staking peroid has completed ";
+                }
+                
+                showModal();
+                setModalContent("There was a problem", message , "modal-bad", true, false);
+                }
+          }          
     };
 
     // --------------------------------------- staking
@@ -296,7 +325,7 @@ export default defineComponent({
           {
             if((VaultRef.value.desiredVaultNFTs.length - VaultRef.value.currentVaultNFTs.length) >= 0 && VaultRef.value.desiredVaultNFTs.length < 1)
             {
-              setModalContent("There was a problem", "Must have at least 1 NFT staked in the Vault." , "modal-bad", true, false);
+              setModalContent("There was a problem", "You must move at least 1 NFT to the staking wallet. To do so, click the NFT then click the right arrow then hit Start Staking!" , "modal-bad", true, false);
             }
             else
             {

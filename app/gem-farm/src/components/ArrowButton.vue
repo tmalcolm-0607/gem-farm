@@ -6,6 +6,7 @@
       :width="60"
       :height="60"
       :class="{ left: left, disabled: disabled }"
+      style="min-width: 60px;"
     />
   </button>
 </template>

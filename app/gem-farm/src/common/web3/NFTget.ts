@@ -18,6 +18,7 @@ async function getTokensByOwner(owner: PublicKey, conn: Connection) {
   const tokens = await conn.getParsedTokenAccountsByOwner(owner, {
     programId: TOKEN_PROGRAM_ID,
   });
+  let te = tokens.value;
   // initial filter - only tokens with 0 decimals & of which 1 is present in the wallet
   return tokens.value
     .filter((t) => {
@@ -38,7 +39,12 @@ async function getNFTMetadata(
   try {
     const metadataPDA = await Metadata.getPDA(mint);
     const onchainMetadata = (await Metadata.load(conn, metadataPDA)).data;
-    const externalMetadata = (await axios.get(onchainMetadata.data.uri)).data;
+    let externalMetadata  :any;
+    if(onchainMetadata.data.symbol.toLowerCase() == "luxr" || onchainMetadata.data.symbol.toLowerCase() == "luxe")
+    {
+      externalMetadata = (await axios.get(onchainMetadata.data.uri)).data;
+    }
+    
     return {
       pubkey: pubkey ? new PublicKey(pubkey) : undefined,
       mint: new PublicKey(mint),
@@ -54,7 +60,7 @@ export async function getNFTMetadataForMany(
   tokens: any[],
   conn: Connection
 ): Promise<INFT[]> {
-  const promises: Promise<INFT | undefined>[] = [];
+  const promises: Promise<INFT | undefined>[] = [];  
   tokens.forEach((t) => promises.push(getNFTMetadata(t.mint, conn, t.pubkey)));
 
   let nfts_temp : { [key: string]: any } = {};
@@ -66,16 +72,12 @@ export async function getNFTMetadataForMany(
     if(nfts_temp[nft].onchainMetadata?.data?.creators?.length > 0)
     {
       let address =  nfts_temp[nft].onchainMetadata.data.creators[0]?.address || " ";
-      //console.log("found creator NFT :" + address)
-      // address == '9rbRFrWt81a17ArmzDcUhZmMf6VFiW7Dmy8FETmkj4s4' || 
       if(address == '7HdtUewmjpFnE8SKhZDYGCKmL75ZWUxJp6xa1HrmJww8'|| address == 'AGDBeUaKReqE3DdtWq6J9TRAarScBRhGJ77cD82wLNvD' || address == '5gx13mAde8kjx2aevhceBJtiPDNo78WppFzd9RdVN5ch' )
         tok.push(nfts_temp[nft]);
     }
   }
   const nfts = tok
   
-  //.filter((t) => (t[0].onchainMetadatadata.creators[0] == 'ExQoMC78E7U2UY3jYUN8wWKg1VdvA27WMsbJvgwtw16M' || t.onchainMetadatadata.creators[0] == '9rbRFrWt81a17ArmzDcUhZmMf6VFiW7Dmy8FETmkj4s4' || t.onchainMetadatadata.creators[0] == 'xFKGtNuAUxMvkzxR1jyLcNMZxNGmqeafiEk3tEcNRpt'))
-    
   console.log(`found ${nfts.length} metadatas`);
 
   return nfts as INFT[];

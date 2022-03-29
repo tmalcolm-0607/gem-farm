@@ -1,7 +1,7 @@
 <template>
-  <div class="nes-container flex text-center mb-10">
-    <div class="nes-select is-dark text-center flex-1">
-      <select required id="wallet" class="huVjiU" v-model="chosenWallet">
+  <div class="nes-container flex text-center mb-10 flex-wrap">
+    <div class="nes-select is-dark text-center flex-1 mb-10 width100">
+      <select required id="wallet" class="huVjiU choose-wallet" v-model="chosenWallet">
         <option class="text-gray-500" :value="null">Choose wallet..</option>
         <option :value="WalletName.Phantom">Phantom</option>
         <option :value="WalletName.Sollet">Sollet</option>
@@ -10,6 +10,8 @@
         <option :value="WalletName.SolflareWeb">Solflare Web</option>
       </select>
     </div>
+    <div class="connected-wallet flex justify-center align-middle width100">If a wallet is connected show it here.</div>
+    <!-- <img>there will be an image here to disconnect wallet</img> -->
   </div>
 </template>
 

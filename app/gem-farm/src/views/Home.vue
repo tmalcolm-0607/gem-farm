@@ -83,23 +83,23 @@
           class="enabled-button nes-btn huVjiU uxbuttonright"
           @click="claim"
         >
-        Claim {{ availableA / 1000000000 }} $LUX 
+        Claim {{ Math.floor(availableA / 1000000000) }} $LUX 
         </button>        
         <button
           v-if="availableA == 0"
           class="disabled-button nes-btn huVjiU uxbuttonright"
         >
-          Withdraw {{ availableA / 1000000000  }} $LUX
+          Withdraw {{ Math.floor(availableA / 1000000000) }} $LUX
         </button>
         </div>
         
         <div class="width100 flex justify-center huVjiU pt-5">          
-          <div v-if="fixedRate > 0" class="accrued-reward uxbuttonleft left-buttons" > Vault Deposited Rewards: {{(accruedReward - paidOutReward) / 1000000000}} $LUX</div>
+          <div v-if="fixedRate > 0" class="accrued-reward uxbuttonleft left-buttons" > Vault Deposited Rewards: {{Math.floor((accruedReward - paidOutReward) / 1000000000)}} $LUX</div>
           <!-- <div v-if="paidOutReward" class="total-earned-reward" > paidOutReward: {{paidOutReward}}</div> -->
           <div v-if="fixedRate > 0" class="currently-earning uxbuttonright right-buttons" > Currently generating: {{fixedRate / 1000000000}} $LUX per Week</div>
         </div>
         <div class="width100 flex justify-center huVjiU pt-5">          
-          <div v-if="fixedRate > 0" class="accrued-reward uxbuttonleft left-buttons" > Estimated Pending Rewards: {{estFixedRate}} $LUX</div>
+          <div v-if="fixedRate > 0" class="accrued-reward uxbuttonleft left-buttons" > </div> 
           <!-- <div v-if="paidOutReward" class="total-earned-reward" > paidOutReward: {{paidOutReward}}</div> -->
           <div v-if="fixedRate > 0" class="currently-earning uxbuttonright right-buttons" > Staking Status: {{farmerState}}</div>
         </div>
@@ -277,8 +277,8 @@ export default defineComponent({
           await fetchFarn();
           await fetchFarmer();
            setInterval(function () {
-              updateAvailableRewards()
-          }, 20000);
+              fetchFarmer()
+          }, 3600000);
         } catch (e) {
           console.log(`farm with PK ${farm.value} not found :(`);
         }

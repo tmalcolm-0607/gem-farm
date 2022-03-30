@@ -56,7 +56,7 @@
         <p v-if="parseDate(farmerAcc.minStakingEndsTs) <  Date.now()" class="mt-10">NFTs Locked for</p>
         <!-- <p class="mt-10">End Date: {{ parseDate(farmerAcc.minStakingEndsTs) }}</p>     -->
         
-        <vue-countdown :time="Math.floor(farmerAcc.minStakingEndsTs - Date.now()/1000) *1000" v-slot="{ days, hours, minutes, seconds }">
+        <vue-countdown v-if="(Math.floor(farmerAcc.minStakingEndsTs - Date.now()/1000) *1000) > 0" :time="Math.floor(farmerAcc.minStakingEndsTs - Date.now()/1000) *1000" v-slot="{ days, hours, minutes, seconds }">
          {{(seconds > 0) ? "Time Remaining：" : ""}}{{ (days > 0) ? days + " d ," : ""}} {{ (hours > 0) ? hours + " h ," : ""}} {{ (minutes > 0) ? minutes + " m ," : ""}} {{ (seconds > 0) ? seconds + " s" : ""}}
         </vue-countdown>
       </div>
@@ -84,7 +84,7 @@ import { parseDate } from '@/common/util';
 import VueCountdown from '@chenfengyuan/vue-countdown';
 
 export default defineComponent({
-
+  inheritAttrs: false,
   components: { ArrowButton, NFTGrid, VueCountdown},
   props: {
     vault: String,    

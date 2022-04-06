@@ -52,7 +52,7 @@
         class="locked flex-col justify-center items-center align-center"
       >
       <div>
-        <p class="mt-10">STAKED - Vault Locked</p>
+        <p class="mt-10">STAKED - Vault Staking</p>
         <p v-if="parseDate(farmerAcc.minStakingEndsTs) <  Date.now()" class="mt-10">NFTs Locked for</p>
         <!-- <p class="mt-10">End Date: {{ parseDate(farmerAcc.minStakingEndsTs) }}</p>     -->
         
@@ -137,7 +137,7 @@ export default defineComponent({
       const foundGDRs = await gb.fetchAllGdrPDAs(vault.value);
       if (foundGDRs && foundGDRs.length) {
         gdrs.value = foundGDRs;
-        console.log(`found a total of ${foundGDRs.length} gdrs`);
+        console.debug(`found a total of ${foundGDRs.length} gdrs`);
 
         const mints = foundGDRs.map((gdr: any) => {
           return { mint: gdr.account.gemMint };
@@ -147,7 +147,7 @@ export default defineComponent({
           getConnection()
         );
         desiredVaultNFTs.value = [...currentVaultNFTs.value];
-        console.log(
+        console.debug(
           `populated a total of ${currentVaultNFTs.value.length} vault NFTs`
         );
       }
@@ -155,7 +155,7 @@ export default defineComponent({
 
     const updateVaultState = async () => {
       vaultAcc.value = await gb.fetchVaultAcc(vault.value)
-      console.log("vault locked"+ vaultAcc.value.locked);
+      console.debug("vault locked"+ vaultAcc.value.locked);
       bank.value = vaultAcc.value.bank;
       vaultLocked.value = vaultAcc.value.locked;
     };
@@ -226,12 +226,12 @@ export default defineComponent({
     //todo jam into single tx
     const moveNFTsOnChain = async () => {
       for (const nft of toVaultNFTs.value) {
-        console.log(nft);
+        console.debug(nft);
         const creator = new PublicKey(
           //todo currently simply taking the 1st creator
           (nft.onchainMetadata as any).data.creators[0].address
         );
-        console.log('creator is', creator.toBase58());
+        console.debug('creator is', creator.toBase58());
         await depositGem(nft.mint, creator, nft.pubkey!);
       }
       for (const nft of toWalletNFTs.value) {
@@ -248,7 +248,7 @@ export default defineComponent({
           desiredVaultNFTs.value,
           currentVaultNFTs.value
         );
-        console.log('to vault nfts are', toVaultNFTs.value);
+        console.debug('to vault nfts are', toVaultNFTs.value);
       },
       { deep: true }
     );
@@ -261,7 +261,7 @@ export default defineComponent({
           desiredWalletNFTs.value,
           currentWalletNFTs.value
         );
-        console.log('to wallet nfts are', toWalletNFTs.value); 
+        console.debug('to wallet nfts are', toWalletNFTs.value); 
       },
       { deep: true }
     );

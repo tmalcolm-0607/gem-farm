@@ -94,12 +94,12 @@
         </div>
         
         <div class="width100 flex justify-center huVjiU pt-5">          
-          <div v-if="fixedRate > 0" class="accrued-reward uxbuttonleft left-buttons" > Vault Deposited Rewards: {{Math.floor((accruedReward - paidOutReward) / 1000000000)}} $LUX</div>
+          <div v-if="fixedRate > 0" class="accrued-reward uxbuttonleft left-buttons" > Estimated Rewards: {{ estRewards  }} $LUX</div>
           <!-- <div v-if="paidOutReward" class="total-earned-reward" > paidOutReward: {{paidOutReward}}</div> -->
           <div v-if="fixedRate > 0" class="currently-earning uxbuttonright right-buttons" > Currently generating: {{fixedRate / 1000000000}} $LUX per Week</div>
         </div>
         <div class="width100 flex justify-center huVjiU pt-5">          
-          <div v-if="fixedRate > 0" class="accrued-reward uxbuttonleft left-buttons" > </div> 
+          <div v-if="fixedRate > 0" class="accrued-reward uxbuttonleft left-buttons" >Total NFTs Staked: {{totalNFTsStaked}} / {{ Math.floor(totalNFTsStaked / totalNFTs * 100) }}% </div> 
           <!-- <div v-if="paidOutReward" class="total-earned-reward" > paidOutReward: {{paidOutReward}}</div> -->
           <div v-if="fixedRate > 0" class="currently-earning uxbuttonright right-buttons" > Staking Status: {{farmerState}}</div>
         </div>
@@ -203,6 +203,7 @@ export default defineComponent({
     const paidOutReward = ref<string>();    
     const fixedRate = ref<number>();    
     const estFixedRate = ref<number>();
+    const estRewards = ref<number>();
 
     const farmerIdentity = ref<string>();
     const farmerAcc = ref<any>();
@@ -214,6 +215,12 @@ export default defineComponent({
 
     const VaultRef = ref<any>(null);
 
+    const totalAccounts = ref<number>();
+    const totalStakedAccounts = ref<number>();    
+    const totalNFTsStaked = ref<number>();    
+    const totalNFTs = ref<number>();    
+    const farmerbeginStakingTs = ref<string>();
+
     //auto loading for when farm changes
     watch(farm, async () => {
       await freshStart();
@@ -221,25 +228,27 @@ export default defineComponent({
 
     const updateAvailableRewards = async () => {
       accruedReward.value = farmerAcc.value.rewardA.accruedReward.toString();
-      paidOutReward.value = farmerAcc.value.rewardA.paidOutReward.toString();
+      paidOutReward.value = farmerAcc.value.rewardA.paidOutReward.toString();     
       fixedRate.value = (farmerAcc.value.rewardA.fixedRate.promisedSchedule.baseRate * farmerAcc.value.rarityPointsStaked.words[0]);
       estFixedRate.value = Math.floor((Date.now()/1000 - farmerAcc.value.minStakingEndsTs) * (fixedRate.value / 1000000000)/604799);
-      
+      estRewards.value = Math.floor(((Date.now()/1000) - farmerAcc.value.rewardA.fixedRate.lastUpdatedTs) * (fixedRate.value / 1000000000 / 7 / 24 / 60 / 60))
       availableA.value = farmerAcc.value.rewardA.accruedReward
         .sub(farmerAcc.value.rewardA.paidOutReward)
         .toString();
       availableB.value = farmerAcc.value.rewardB.accruedReward
         .sub(farmerAcc.value.rewardB.paidOutReward)
         .toString();   
-        console.log ("called updateAvailableRewards method")
+     
+      totalNFTs.value = 10000;
+      farmerbeginStakingTs.value = farmerAcc.value.rewardA.fixedRate.beginStakingTs
+      
     };
 
     const fetchFarn = async () => {   
       farmAcc.value = await gf.fetchFarmAcc(new PublicKey(farm.value!));  
-      console.log(
-        `farm found at ${farm.value}:`,
-        stringifyPKsAndBNs(farmAcc.value)
-      );
+        totalAccounts.value = farmAcc.value.farmerCount;
+        totalStakedAccounts.value = farmAcc.value.stakedFarmerCount
+        totalNFTsStaked.value = farmAcc.value.gemsStaked      
     };
 
     const fetchFarmer = async () => {
@@ -277,16 +286,16 @@ export default defineComponent({
           await fetchFarn();
           await fetchFarmer();
            setInterval(function () {
-              fetchFarmer()
-          }, 3600000);
+              fetchFarn();
+              fetchFarmer();
+          }, 600000);
         } catch (e) {
           console.log(`farm with PK ${farm.value} not found :(`);
         }
       }
     };
 
-    const initFarmer = async () => {
-      //debugger;
+    const initFarmer = async () => {      
           try
           {           
             setModalContent("Submitting Transaction", "Creating new staking account: Transaction in Progress", "modal-neutral", false, true);    
@@ -326,7 +335,6 @@ export default defineComponent({
       {
         showModal();
         setModalContent("Submitting Transaction", "Transaction in Progress", "modal-neutral", false, true);     
-        //debugger;           
           if((VaultRef.value.desiredVaultNFTs.length >= VaultRef.value.currentVaultNFTs.length && VaultRef.value.desiredVaultNFTs.length > 0))
           {
             await VaultRef.value.moveNFTsOnChain();
@@ -350,7 +358,6 @@ export default defineComponent({
       catch(ex: unknown)
       {      
         hideModal();
-        //debugger;
         let message = 'Unknown Error: Please try again. If the problem continues, please reach out to the site admin'
         if (ex instanceof Error) {
           message = ex.message;
@@ -387,7 +394,6 @@ export default defineComponent({
       }
       catch(ex: unknown)
       {      
-        //debugger;
         let message = 'Unknown Error: Please try again. If the problem continues, please reach out to the site admin'
         if (ex instanceof Error) {
           message = ex.message;
@@ -427,18 +433,16 @@ export default defineComponent({
     const selectedNFTs = ref<INFT[]>([]);
 
     const handleNewSelectedNFT = (newSelectedNFTs: INFT[]) => {
-      //debugger
       widthdrawNFTs.value = (VaultRef.value.currentVaultNFTs.length - VaultRef.value.desiredVaultNFTs.length> 0 )
       
-      console.log(`selected ${newSelectedNFTs.length} NFTs`);
+      console.debug(`selected ${newSelectedNFTs.length} NFTs`);
       selectedNFTs.value = newSelectedNFTs; 
     };
 
     const handleNewSelectedVaultNFT = (newSelectedNFTs: INFT[]) => {
-      //debugger;
       widthdrawNFTs.value = (VaultRef.value.currentVaultNFTs.length - VaultRef.value.desiredVaultNFTs.length> 0 )
       
-      console.log(`selected ${newSelectedNFTs.length} NFTs`);
+      console.debug(`selected ${newSelectedNFTs.length} NFTs`);
       selectedNFTs.value = newSelectedNFTs;
     };
 
@@ -468,12 +472,12 @@ export default defineComponent({
             //todo currently simply taking the 1st creator
             (nft.onchainMetadata as any).data.creators[0].address
           );
-          console.log('creator is', creator.toBase58());
+          console.debug('creator is', creator.toBase58());
 
           addSingleGem(nft.mint, nft.pubkey!, creator);
         })
       );
-      console.log(
+      console.debug(
         `added another ${selectedNFTs.value.length} gems into staking vault`
       );
        await VaultRef.value.moveNFTsOnChain();
@@ -481,7 +485,6 @@ export default defineComponent({
       }
       catch(ex: unknown)
       {      
-        //debugger;
         let message = 'Unknown Error: Please try again. If the problem continues, please reach out to the site admin'
         if (ex instanceof Error) {
           message = ex.message;
@@ -531,7 +534,13 @@ export default defineComponent({
       paidOutReward,
       fixedRate,
       estFixedRate,
-      widthdrawNFTs
+      widthdrawNFTs,
+      totalAccounts,
+      totalStakedAccounts,
+      totalNFTsStaked,
+      totalNFTs,
+      farmerbeginStakingTs,
+      estRewards
     };
   },
 });

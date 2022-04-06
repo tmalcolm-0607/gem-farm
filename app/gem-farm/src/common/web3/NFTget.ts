@@ -2,6 +2,7 @@ import { Connection, PublicKey } from '@solana/web3.js';
 import { TOKEN_PROGRAM_ID } from '@solana/spl-token';
 import axios from 'axios';
 import { programs } from '@metaplex/js';
+const fs = require('fs');
 
 const {
   metadata: { Metadata },
@@ -38,15 +39,15 @@ async function getNFTMetadata(
 ): Promise<INFT | undefined> {
   // console.log('Pulling metadata for:', mint);
   try {
-    const metadataPDA = await Metadata.getPDA(mint);
-    const onchainMetadata = (await Metadata.load(conn, metadataPDA)).data;
-    let externalMetadata  :any;
-    //debugger;
-    //if(onchainMetadata.data.symbol.toLowerCase() == "luxr" || onchainMetadata.data.symbol.toLowerCase() == "luxe" || onchainMetadata.data.symbol.toLowerCase() == "basc")
-    if(onchainMetadata.data.symbol.toLowerCase() == "luxr" || onchainMetadata.data.symbol.toLowerCase() == "luxe")
-    {
-      externalMetadata = (await axios.get(onchainMetadata.data.uri)).data;
-    }
+    try{
+    let onchainMetadata :any = {};
+    let externalMetadata  :any = {};
+    let filepath = "/cache/" + mint + "/a.json";
+    let response = await fetch(filepath); 
+    let nftdata = await response.json(); 
+    
+    onchainMetadata.data = {symbol: nftdata.metadata.symbol, name: nftdata.metadata.name, creators: nftdata.tokenData.creators}
+    externalMetadata.image = "/cache/" + mint + "/c.png";
     
     return {
       pubkey: pubkey ? new PublicKey(pubkey) : undefined,
@@ -54,16 +55,29 @@ async function getNFTMetadata(
       onchainMetadata,
       externalMetadata,
     };
-  } catch (e) {
-    if(attempt < 5)
-    {
-      attempt++;
-      console.log(e);
-      console.log(`failed to pull metadata for token ${mint} attmept ${attempt} of 5`);
-      return getNFTMetadata(mint, conn, pubkey, attempt); 
-    }
-    console.log(`failed to pull metadata for token ${mint} attmept ${attempt} of 5`);
+  } catch (e) {   
+      console.debug(e);
+      console.log(`failed to pull metadata for token ${mint}`);    
   }
+    const metadataPDA = await Metadata.getPDA(mint);
+    const onchainMetadata = (await Metadata.load(conn, metadataPDA)).data;
+    let externalMetadata  :any;
+   
+    if(onchainMetadata.data.symbol.toLowerCase() == "luxr" || onchainMetadata.data.symbol.toLowerCase() == "luxe")
+    {
+      externalMetadata = (await axios.get(onchainMetadata.data.uri)).data;
+    }
+
+  return {
+    pubkey: pubkey ? new PublicKey(pubkey) : undefined,
+    mint: new PublicKey(mint),
+    onchainMetadata,
+    externalMetadata,
+  };
+} catch (e) {   
+  console.debug(e);
+  console.log(`failed to pull metadata for token ${mint}`);    
+}
 }
 
 export async function getNFTMetadataForMany(
@@ -88,7 +102,7 @@ export async function getNFTMetadataForMany(
   }
   const nfts = tok
   
-  console.log(`found ${nfts.length} metadatas`);
+  console.log(`found metadata matching${nfts.length} tokens : filtered ${nfts_temp.length - nfts.length}`);
 
   return nfts as INFT[];
 }
@@ -98,7 +112,7 @@ export async function getNFTsByOwner(
   conn: Connection
 ): Promise<INFT[]> {
   const tokens = await getTokensByOwner(owner, conn);
-  console.log(`found ${tokens.length} tokens`);
+  console.debug(`found ${tokens.length} tokens`);
 
   return await getNFTMetadataForMany(tokens, conn);
 }

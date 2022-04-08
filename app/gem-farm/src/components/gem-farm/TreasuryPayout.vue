@@ -74,7 +74,7 @@ export default defineComponent({
 
     const getTresauryBalance = async () => {
       const [treasury] = await findFarmTreasuryPDA(new PublicKey(props.farm!));
-      console.log('treasury found:', treasury.toBase58());
+      console.debug('treasury found:', treasury.toBase58());
       balance.value = await gf.getBalance(treasury);
     };
 

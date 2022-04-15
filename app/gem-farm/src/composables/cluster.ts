@@ -15,7 +15,7 @@ export enum BankAddr {
 }
 
 const clusterURLMapping = {
-  mainnet: process.env.VUE_APP_MAINNET_URL || 'https://restless-silent-cloud.solana-mainnet.quiknode.pro/',
+  mainnet: process.env.VUE_APP_MAINNET_URL || 'https://black-wandering-breeze.solana-mainnet.quiknode.pro/236dbdbb15c70ba60c300acd1bdddb2af9603240/',
   //mainnet: process.env.VUE_APP_DEVNET_URL || 'https://api.devnet.solana.com',
   devnet: process.env.VUE_APP_DEVNET_URL || 'https://api.devnet.solana.com',
   //mainnet: process.env.VUE_APP_DEVNET_URL || 'https://api.devnet.solana.com',
